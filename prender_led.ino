@@ -2,6 +2,7 @@
 #include <Ethernet.h> //Declaración de la direcciones MAC e IP. También del puerto 80 
 byte mac[]={0xDE,0xAD,0xBE,0xEF,0xFE,0xED}; //MAC 
 IPAddress ip(192,168,1,100); //IP 
+IPAddress ip2(31.170.163.30);
 char ser[] = "http://localhost/Sybil/Menu.php";
 EthernetClient cli;
 EthernetServer servidor(80); 
@@ -12,7 +13,10 @@ String state=String(3);
 void setup() {
 Serial.begin(9600);
 Ethernet.begin(mac, ip); //Inicializamos con las direcciones asignadas 
+Ethernet.begin(mac, ip2);
 servidor.begin(); 
+
+
 pinMode(PIN_LED,OUTPUT);
 digitalWrite(PIN_LED,LOW);
 state="OFF";
@@ -24,6 +28,7 @@ void loop() {
   //EthernetClient Crea un cliente que se puede conectar a 
   //una dirección específica de Internet IP
 EthernetClient cliente= servidor.available(); 
+EthernetClient client = servidor.available();
 if(cliente) {
 boolean lineaenblanco=true; 
 while(cliente.connected()) {
@@ -41,14 +46,16 @@ int LED = readString.indexOf("LED=");
 if(readString.substring(LED,LED+5)=="LED=T") {
 digitalWrite(PIN_LED,HIGH);
 state="ON"; 
-cli.println("GET ?alarmast=on HTTP/1.1");
-cli.println("HOST http://localhost/Sybil/Menu.php");
+if(client.available()){
+  client.println("GET /Menu.php?al=on");
+}
 } 
 else if (readString.substring(LED,LED+5)=="LED=F") {
 digitalWrite(PIN_LED,LOW); 
 state="OFF";
-cli.println("GET ?alarmast=off HTTP/1.1");
-cli.println("HOST http://localhost/Sybil/Menu.php");
+if(client.available()){
+  client.println("GET /Menu.php?al=on");
+}
 }
 if (cli.available()) {
     char c = client.read();
